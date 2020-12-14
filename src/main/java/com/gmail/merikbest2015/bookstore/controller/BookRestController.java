@@ -29,10 +29,10 @@ public class BookRestController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Book>> findAllBooks(int pageNumber, int pageSize, String sortBy, String sortDir) {
+    public ResponseEntity<Page<Book>> findAllBooks(Integer page, Integer size, String sortBy, String sortDir) {
         return new ResponseEntity<>(bookService.findAll(
                 PageRequest.of(
-                        pageNumber, pageSize,
+                        page, size,
                         sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending()
                 )), HttpStatus.OK);
     }
