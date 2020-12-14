@@ -5,7 +5,7 @@ import {faEdit, faList, faUndo} from "@fortawesome/free-solid-svg-icons";
 import {faPlusSquare} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 
-import MyToast from "./my-toast";
+import MyToast from "../parts/my-toast";
 
 class BookAdd extends Component {
     initialState = {
@@ -95,9 +95,10 @@ class BookAdd extends Component {
                         genre: response.data.genre
                     });
                 }
-            }).catch((error) => {
-            console.error("Error - " + error);
-        });
+            })
+            .catch((error) => {
+                console.error("Error - " + error);
+            });
     };
 
     onBookChange = (event) => {
@@ -127,7 +128,7 @@ class BookAdd extends Component {
                     </Card.Header>
                     <Form
                         onReset={this.resetBook}
-                        onSubmit={id ?  this.updateBook : this.submitBook}
+                        onSubmit={id ? this.updateBook : this.submitBook}
                         id="bookFormId">
                         <Card.Body>
                             <Form.Row>
