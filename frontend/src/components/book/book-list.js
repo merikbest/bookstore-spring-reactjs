@@ -14,7 +14,7 @@ import {Link} from "react-router-dom";
 
 import MyToast from "../parts/my-toast";
 
-import "./book-list.css";
+import "../style.css";
 
 class BookList extends Component {
     state = {
@@ -45,7 +45,7 @@ class BookList extends Component {
     };
 
     deleteBook = (bookId) => {
-        axios.delete("http://localhost:8080/books/" + bookId)
+        axios.delete(`"http://localhost:8080/books/${bookId}`)
             .then((response) => {
                 this.setState({show: true});
                 setTimeout(() => this.setState({show: false}), 3000);
@@ -170,14 +170,14 @@ class BookList extends Component {
 
 
     render() {
-        const {books, currentPage, totalPages, search} = this.state;
+        const {books, currentPage, totalPages, search, sortDir} = this.state;
 
         return (
             <div>
                 <div style={{"display": this.state.show ? "block" : "none"}}>
                     <MyToast show={this.state.show} message={"Book deleted successfully"} type={"danger"}/>
                 </div>
-                <Card className={"border border-dark bg-light"}>
+                <Card className="border border-dark bg-light">
                     <Card.Header>
                         <div style={{"float": "left"}}>
                             <FontAwesomeIcon icon={faList}/> Book List
@@ -185,7 +185,7 @@ class BookList extends Component {
                         <div style={{"float": "right"}}>
                             <InputGroup size="sm">
                                 <FormControl placeholder="Search" name="search" value={search}
-                                             className={"info-border bg-light text-white"}
+                                             className="info-border bg-light"
                                              onChange={this.searchChange}/>
                                 <InputGroup.Append>
                                     <Button size="sm" variant="outline-info" type="button" onClick={this.searchData}>
@@ -206,7 +206,9 @@ class BookList extends Component {
                                 <th>Title</th>
                                 <th>Author</th>
                                 <th>ISBN Number</th>
-                                <th>Price</th>
+                                <th onClick={this.sortData}>Price
+                                    <div className={sortDir === "asc" ? "arrow arrow-up" : "arrow arrow-down"}> </div>
+                                </th>
                                 <th>Language</th>
                                 <th>Genre</th>
                                 <th>Actions</th>
@@ -268,7 +270,7 @@ class BookList extends Component {
                                             <FontAwesomeIcon icon={faStepBackward}/> Prev
                                         </Button>
                                     </InputGroup.Prepend>
-                                    <FormControl className={"page-num bg-light"} name="currentPage" value={currentPage}
+                                    <FormControl className="page-num bg-light" name="currentPage" value={currentPage}
                                                  onChange={this.changePage}/>
                                     <InputGroup.Append>
                                         <Button type="button" variant="outline-info"

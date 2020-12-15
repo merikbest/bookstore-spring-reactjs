@@ -14,15 +14,15 @@ class BookAdd extends Component {
         author: "",
         coverPhotoURL: "",
         isbnNumber: "",
-        price: "",
-        language: "",
-        genre: "",
+        price: ""
     };
 
     state = {
         initialState: this.initialState,
         show: false,
-        method: ""
+        method: "",
+        genres: [],
+        languages: [],
     };
 
     componentDidMount() {
@@ -31,6 +31,9 @@ class BookAdd extends Component {
         if (bookId) {
             this.findBookById(bookId);
         }
+
+        this.findAllLanguages();
+        this.findAllGenres();
     }
 
     resetBook = () => {
@@ -82,7 +85,7 @@ class BookAdd extends Component {
 
     findBookById = (bookId) => {
         axios.get("http://localhost:8080/books/" + bookId)
-            .then(response => {
+            .then((response) => {
                 if (response.data != null) {
                     this.setState({
                         id: response.data.id,
@@ -101,6 +104,31 @@ class BookAdd extends Component {
             });
     };
 
+    findAllLanguages = () => {
+        axios.get("http://localhost:8080/books/languages")
+            .then(response => response.data)
+            .then((data) => {
+                this.setState({
+                    languages: [{value: '', display: 'Select Language'}]
+                        .concat(data.map((language) => {
+                            return {value: language, display: language}
+                        }))
+                });
+            });
+    };
+
+    findAllGenres = () => {
+        axios.get("http://localhost:8080/books/genres")
+            .then((response) => {
+                this.setState({
+                    genres: [{value: "", display: "Select Genre"}]
+                        .concat(response.data.map(genre => {
+                            return {value: genre, display: genre}
+                        }))
+                });
+            });
+    };
+
     onBookChange = (event) => {
         const {name, value} = event.target;
 
@@ -110,7 +138,7 @@ class BookAdd extends Component {
     };
 
     render() {
-        const {id, title, author, coverPhotoURL, isbnNumber, price, language, genre, show, method} = this.state;
+        const {id, title, author, coverPhotoURL, isbnNumber, price, language, genre, show, method, languages, genres} = this.state;
 
         return (
             <div>
@@ -194,24 +222,30 @@ class BookAdd extends Component {
                                 <Form.Group as={Col} controlId="formGridLanguage">
                                     <Form.Label>Language</Form.Label>
                                     <Form.Control
-                                        required
-                                        autoComplete="off"
-                                        type="text"
+                                        required as="select"
+                                        custom onChange={this.onBookChange}
                                         name="language"
-                                        value={language}
-                                        onChange={this.onBookChange}
-                                        placeholder="Enter Book Language"/>
+                                        value={language}>
+                                        {languages.map((language) =>
+                                            <option key={language.value} value={language.value}>
+                                                {language.display}
+                                            </option>
+                                        )}
+                                    </Form.Control>
                                 </Form.Group>
                                 <Form.Group as={Col} controlId="formGridLanguage">
                                     <Form.Label>Genre</Form.Label>
                                     <Form.Control
-                                        required
-                                        autoComplete="off"
-                                        type="text"
+                                        required as="select"
+                                        custom onChange={this.onBookChange}
                                         name="genre"
-                                        value={genre}
-                                        onChange={this.onBookChange}
-                                        placeholder="Enter Book Genre"/>
+                                        value={genre}>
+                                        {genres.map((genre) =>
+                                            <option key={genre.value} value={genre.value}>
+                                                {genre.display}
+                                            </option>
+                                        )}
+                                    </Form.Control>
                                 </Form.Group>
                             </Form.Row>
                             <Card.Footer style={{textAlign: "right"}}>
