@@ -11,6 +11,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Link} from "react-router-dom";
+import {connect} from "react-redux";
+import {deleteBook} from "../../actions/book-actions";
 
 import MyToast from "../parts/my-toast";
 
@@ -45,19 +47,17 @@ class BookList extends Component {
     };
 
     deleteBook = (bookId) => {
-        axios.delete(`"http://localhost:8080/books/${bookId}`)
-            .then((response) => {
+        this.props.deleteBook(bookId);
+
+        setTimeout(() => {
+            if (this.props.bookObject != null) {
                 this.setState({show: true});
                 setTimeout(() => this.setState({show: false}), 3000);
-
-                if (response.data != null) {
-                    this.setState({
-                        books: this.state.books.filter(book => book.id !== bookId)
-                    });
-                } else {
-                    this.setState({show: false});
-                }
-            });
+                this.findAllBooks(this.state.currentPage);
+            } else {
+                this.setState({show: false});
+            }
+        });
     };
 
     sortData = () => {
@@ -167,7 +167,6 @@ class BookList extends Component {
                 });
             });
     };
-
 
     render() {
         const {books, currentPage, totalPages, search, sortDir} = this.state;
@@ -294,4 +293,16 @@ class BookList extends Component {
     }
 }
 
-export default BookList;
+const mapStateToProps = (state) => {
+    return {
+        bookObject: state.book,
+    }
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        deleteBook: (bookId) => dispatch(deleteBook(bookId)),
+    }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BookList);
