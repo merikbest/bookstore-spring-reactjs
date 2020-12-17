@@ -12,7 +12,7 @@ import {
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Link} from "react-router-dom";
 import {connect} from "react-redux";
-import {deleteBook} from "../../actions/book-actions";
+import {deleteBook, fetchBooks} from "../../actions/book-actions";
 
 import MyToast from "../parts/my-toast";
 
@@ -206,7 +206,7 @@ class BookList extends Component {
                                 <th>Author</th>
                                 <th>ISBN Number</th>
                                 <th onClick={this.sortData}>Price
-                                    <div className={sortDir === "asc" ? "arrow arrow-up" : "arrow arrow-down"}> </div>
+                                    <div className={sortDir === "asc" ? "arrow arrow-up" : "arrow arrow-down"}></div>
                                 </th>
                                 <th>Language</th>
                                 <th>Genre</th>
@@ -296,12 +296,14 @@ class BookList extends Component {
 const mapStateToProps = (state) => {
     return {
         bookObject: state.book,
+        bookArray: state.book
     }
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
         deleteBook: (bookId) => dispatch(deleteBook(bookId)),
+        fetchBooks: (currentPage, booksPerPage, sortDir) => dispatch(fetchBooks(currentPage, booksPerPage, sortDir)),
     }
 };
 

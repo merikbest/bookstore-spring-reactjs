@@ -1,10 +1,12 @@
 import {
     SAVE_BOOK_REQUEST,
     FETCH_BOOK_REQUEST,
+    FETCH_BOOKS_REQUEST,
     UPDATE_BOOK_REQUEST,
     DELETE_BOOK_REQUEST,
     BOOK_SUCCESS,
-    BOOK_FAILURE
+    BOOKS_SUCCESS,
+    BOOK_FAILURE,
 } from "./book-types";
 
 import axios from 'axios';
@@ -28,6 +30,19 @@ export const updateBook = (book) => {
         axios.put("http://localhost:8080/books", book)
             .then((response) => {
                 dispatch(bookSuccess(response.data));
+            })
+            .catch((error) => {
+                dispatch(bookFailure(error));
+            });
+    };
+};
+//http://localhost:8080/books?page=1&size=5&sortBy=price&sortDir=asc
+export const fetchBooks = (currentPage, booksPerPage, sortDir) => {
+    return (dispatch) => {
+        dispatch(fetchBooksRequest());
+        axios.get(`http://localhost:8080/books?page=${currentPage}&size=${booksPerPage}&sortBy=price&sortDir=${sortDir}`)
+            .then((response) => {
+                dispatch(booksSuccess(response.data));
             })
             .catch((error) => {
                 dispatch(bookFailure(error));
@@ -61,6 +76,12 @@ export const deleteBook = (bookId) => {
     };
 };
 
+const fetchBooksRequest = () => {
+    return {
+        type: FETCH_BOOKS_REQUEST
+    };
+};
+
 const fetchBookRequest = () => {
     return {
         type: FETCH_BOOK_REQUEST
@@ -82,6 +103,13 @@ const saveBookRequest = () => {
 const deleteBookRequest = () => {
     return {
         type: DELETE_BOOK_REQUEST
+    };
+};
+
+const booksSuccess = (books) => {
+    return {
+        type: BOOKS_SUCCESS,
+        payload: books
     };
 };
 
