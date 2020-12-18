@@ -7,7 +7,8 @@ import {connect} from "react-redux";
 import axios from "axios";
 
 import MyToast from "../parts/my-toast";
-import {saveBook, fetchBook, updateBook} from "../../actions/book-actions";
+import {saveBook, fetchBook, updateBook, findAllLanguages, findAllGenres} from "../../actions/book-actions";
+import PropTypes from "prop-types";
 
 class BookAdd extends Component {
     initialState = {
@@ -23,8 +24,8 @@ class BookAdd extends Component {
         initialState: this.initialState,
         show: false,
         method: "",
-        genres: [],
         languages: [],
+        genres: []
     };
 
     componentDidMount() {
@@ -61,15 +62,6 @@ class BookAdd extends Component {
             this.setState({show: false});
         }
 
-        // axios.post("http://localhost:8080/books", book)
-        //     .then((response) => {
-        //         if (response != null) {
-        //             this.setState({show: true});
-        //             setTimeout(() => this.setState({show: false, method: "post"}), 3000);
-        //         } else {
-        //             this.setState({show: false});
-        //         }
-        //     });
         this.setState(this.initialState);
     };
 
@@ -112,28 +104,34 @@ class BookAdd extends Component {
     };
 
     findAllLanguages = () => {
-        axios.get("http://localhost:8080/books/languages")
-            .then(response => response.data)
-            .then((data) => {
-                this.setState({
-                    languages: [{value: '', display: 'Select Language'}]
-                        .concat(data.map((language) => {
-                            return {value: language, display: language}
-                        }))
-                });
-            });
+        this.props.findAllLanguages();
+
+        this.setState({
+            languages: [{value: "", display: 'Select Language'}]
+                .concat(this.props.bookLanguages.languages.map((language) => {
+                    return {value: language, display: language}
+                }))
+        });
     };
 
     findAllGenres = () => {
-        axios.get("http://localhost:8080/books/genres")
-            .then((response) => {
-                this.setState({
-                    genres: [{value: "", display: "Select Genre"}]
-                        .concat(response.data.map(genre => {
-                            return {value: genre, display: genre}
-                        }))
-                });
-            });
+        this.props.findAllGenres();
+
+        this.setState({
+            genres: [{value: "", display: "Select Genre"}]
+                .concat(this.props.bookGenres.genres.map((genre) => {
+                    return {value: genre, display: genre}
+                }))
+        });
+        // axios.get("http://localhost:8080/books/genres")
+        //     .then((response) => {
+        //         this.setState({
+        //             genres: [{value: "", display: "Select Genre"}]
+        //                 .concat(response.data.map(genre => {
+        //                     return {value: genre, display: genre}
+        //                 }))
+        //         });
+        //     });
     };
 
     onBookChange = (event) => {
@@ -281,20 +279,25 @@ class BookAdd extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        savedBookObject: state.book,
-        updatedBookObject: state.book,
-        bookObject: state.book,
-    }
+BookAdd.propTypes = {
+    saveBook: PropTypes.func.isRequired,
+    updateBook: PropTypes.func.isRequired,
+    fetchBook: PropTypes.func.isRequired,
+    findAllLanguages: PropTypes.func.isRequired,
+    findAllGenres: PropTypes.func.isRequired,
+    savedBookObject: PropTypes.object.isRequired,
+    updatedBookObject: PropTypes.object.isRequired,
+    bookObject: PropTypes.object.isRequired,
+    bookLanguages: PropTypes.object.isRequired,
+    bookGenres: PropTypes.object.isRequired,
 };
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        saveBook: (book) => dispatch(saveBook(book)),
-        updateBook: (book) => dispatch(updateBook(book)),
-        fetchBook: (bookId) => dispatch(fetchBook(bookId))
-    }
-};
+const mapStateToProps = (state) => ({
+    savedBookObject: state.book,
+    updatedBookObject: state.book,
+    bookObject: state.book,
+    bookLanguages: state.book,
+    bookGenres: state.book
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(BookAdd);
+export default connect(mapStateToProps, {saveBook, updateBook, fetchBook, findAllLanguages, findAllGenres})(BookAdd);

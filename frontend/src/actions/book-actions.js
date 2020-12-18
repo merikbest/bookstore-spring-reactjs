@@ -1,128 +1,102 @@
-import {
-    SAVE_BOOK_REQUEST,
-    FETCH_BOOK_REQUEST,
-    FETCH_BOOKS_REQUEST,
-    UPDATE_BOOK_REQUEST,
-    DELETE_BOOK_REQUEST,
-    BOOK_SUCCESS,
-    BOOKS_SUCCESS,
-    BOOK_FAILURE,
-} from "./book-types";
-
+import {BOOK_SUCCESS, BOOKS_SUCCESS, BOOK_FAILURE, LANGUAGES_SUCCESS, GENRES_SUCCESS} from "./book-types";
 import axios from 'axios';
 
-export const saveBook = (book) => {
-    return (dispatch) => {
-        dispatch(saveBookRequest());
-        axios.post("http://localhost:8080/books", book)
-            .then((response) => {
-                dispatch(bookSuccess(response.data));
-            })
-            .catch((error) => {
-                dispatch(bookFailure(error));
-            });
-    };
+export const saveBook = (book) => async (dispatch) => {
+    try {
+        const response = await axios.post("http://localhost:8080/books", book);
+
+        dispatch({
+            type: BOOK_SUCCESS,
+            payload: response.data
+        })
+    } catch (error) {
+        dispatch({
+            type: BOOK_FAILURE,
+            payload: error.response.data
+        })
+    }
 };
 
-export const updateBook = (book) => {
-    return (dispatch) => {
-        dispatch(updateBookRequest());
-        axios.put("http://localhost:8080/books", book)
-            .then((response) => {
-                dispatch(bookSuccess(response.data));
-            })
-            .catch((error) => {
-                dispatch(bookFailure(error));
-            });
-    };
-};
-//http://localhost:8080/books?page=1&size=5&sortBy=price&sortDir=asc
-export const fetchBooks = (currentPage, booksPerPage, sortDir) => {
-    return (dispatch) => {
-        dispatch(fetchBooksRequest());
-        axios.get(`http://localhost:8080/books?page=${currentPage}&size=${booksPerPage}&sortBy=price&sortDir=${sortDir}`)
-            .then((response) => {
-                dispatch(booksSuccess(response.data));
-            })
-            .catch((error) => {
-                dispatch(bookFailure(error));
-            });
-    };
+export const updateBook = (book) => async (dispatch) => {
+    try {
+        const response = await axios.put("http://localhost:8080/books", book);
+
+        dispatch({
+            type: BOOK_SUCCESS,
+            payload: response.data
+        })
+    } catch (error) {
+        dispatch({
+            type: BOOK_FAILURE,
+            payload: error.response.data
+        })
+    }
 };
 
-export const fetchBook = (bookId) => {
-    return (dispatch) => {
-        dispatch(fetchBookRequest());
-        axios.get("http://localhost:8080/books/" + bookId)
-            .then((response) => {
-                dispatch(bookSuccess(response.data));
-            })
-            .catch((error) => {
-                dispatch(bookFailure(error));
-            });
-    };
-};
+export const fetchBooks = (currentPage, booksPerPage, sortDir) => async (dispatch) => {
+    const response = await axios.get(`http://localhost:8080/books?page=${currentPage}&size=${booksPerPage}&sortBy=price&sortDir=${sortDir}`);
 
-export const deleteBook = (bookId) => {
-    return (dispatch) => {
-        dispatch(deleteBookRequest());
-        axios.delete("http://localhost:8080/books/" + bookId)
-            .then((response) => {
-                dispatch(bookSuccess(response.data));
-            })
-            .catch((error) => {
-                dispatch(bookFailure(error));
-            });
-    };
-};
-
-const fetchBooksRequest = () => {
-    return {
-        type: FETCH_BOOKS_REQUEST
-    };
-};
-
-const fetchBookRequest = () => {
-    return {
-        type: FETCH_BOOK_REQUEST
-    };
-};
-
-const updateBookRequest = () => {
-    return {
-        type: UPDATE_BOOK_REQUEST
-    };
-};
-
-const saveBookRequest = () => {
-    return {
-        type: SAVE_BOOK_REQUEST
-    };
-};
-
-const deleteBookRequest = () => {
-    return {
-        type: DELETE_BOOK_REQUEST
-    };
-};
-
-const booksSuccess = (books) => {
-    return {
+    dispatch({
         type: BOOKS_SUCCESS,
-        payload: books
-    };
+        payload: response.data
+    })
 };
 
-const bookSuccess = (book) => {
-    return {
-        type: BOOK_SUCCESS,
-        payload: book
-    };
+export const fetchBook = (bookId) => async (dispatch) => {
+    try {
+        const response = await axios.get(`http://localhost:8080/books/${bookId}`)
+
+        dispatch({
+            type: BOOK_SUCCESS,
+            payload: response.data
+        })
+    } catch (error) {
+        dispatch({
+            type: BOOK_FAILURE,
+            payload: error.response.data
+        })
+    }
 };
 
-const bookFailure = (error) => {
-    return {
-        type: BOOK_FAILURE,
-        payload: error
-    };
+export const deleteBook = (bookId) => async (dispatch) => {
+    try {
+        const response = await axios.delete(`http://localhost:8080/books/${bookId}`)
+
+        dispatch({
+            type: BOOK_SUCCESS,
+            payload: response.data
+        })
+    } catch (error) {
+        dispatch({
+            type: BOOK_FAILURE,
+            payload: error.response.data
+        })
+    }
+};
+
+export const searchBook = (search, currentPage, booksPerPage) => async (dispatch) => {
+    const response = await axios.get(`http://localhost:8080/books/search/${search}?page=${currentPage}&size=${booksPerPage}`);
+
+    dispatch({
+        type: BOOKS_SUCCESS,
+        payload: response.data
+    })
+};
+
+export const findAllLanguages = () => async (dispatch) => {
+    const response = await axios.get("http://localhost:8080/books/languages");
+
+    dispatch({
+        type: LANGUAGES_SUCCESS,
+        payload: response.data
+    })
+};
+
+export const findAllGenres = () => async (dispatch) => {
+    const response = await axios.get("http://localhost:8080/books/genres");
+
+    dispatch({
+        type: GENRES_SUCCESS,
+        payload: response.data
+    })
 };

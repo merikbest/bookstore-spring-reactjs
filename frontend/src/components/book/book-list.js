@@ -12,7 +12,8 @@ import {
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Link} from "react-router-dom";
 import {connect} from "react-redux";
-import {deleteBook, fetchBooks} from "../../actions/book-actions";
+import {deleteBook, fetchBooks, searchBook} from "../../actions/book-actions";
+import PropTypes from "prop-types";
 
 import MyToast from "../parts/my-toast";
 
@@ -20,30 +21,31 @@ import "../style.css";
 
 class BookList extends Component {
     state = {
-        books: [],
-        search: "",
-        currentPage: 1,
-        booksPerPage: 5,
-        sortDir: "asc"
+        // search: "",
+        // booksPerPage: 5,
+        // sortDir: "asc"
     };
 
     componentDidMount() {
-        this.findAllBooks(this.state.currentPage);
+        // this.findAllBooks(this.state.currentPage);
+        this.findAllBooks(this.props.booksData.books.currentPage);
     }
 
     findAllBooks = (currentPage) => {
         currentPage -= 1;
-        const {booksPerPage, sortDir} = this.state;
+        const {booksPerPage, sortDir} = this.props.booksData;
+        // const {books} = this.props.booksData;
 
-        axios.get(`http://localhost:8080/books?page=${currentPage}&size=${booksPerPage}&sortBy=price&sortDir=${sortDir}`)
-            .then((response) => {
-                this.setState({
-                    books: response.data.content,
-                    totalPages: response.data.totalPages,
-                    totalElements: response.data.totalElements,
-                    currentPage: response.data.number + 1
-                });
-            });
+        this.props.fetchBooks(currentPage, booksPerPage, sortDir);
+
+        // if (books != null) {
+        //     this.setState({
+        //         books: books.content,
+        //         totalPages: books.totalPages,
+        //         totalElements: books.totalElements,
+        //         currentPage: books.number
+        //     });
+        // }
     };
 
     deleteBook = (bookId) => {
@@ -53,7 +55,7 @@ class BookList extends Component {
             if (this.props.bookObject != null) {
                 this.setState({show: true});
                 setTimeout(() => this.setState({show: false}), 3000);
-                this.findAllBooks(this.state.currentPage);
+                this.findAllBooks(this.props.booksData.books.currentPage);
             } else {
                 this.setState({show: false});
             }
@@ -61,7 +63,8 @@ class BookList extends Component {
     };
 
     sortData = () => {
-        const {sortDir, currentPage} = this.state;
+        const {sortDir} = this.props.booksData;
+        const {currentPage} = this.props.booksData.books;
 
         setTimeout(() => {
             sortDir === "asc" ? this.setState({sortDir: "desc"}) : this.setState({sortDir: "asc"});
@@ -78,7 +81,7 @@ class BookList extends Component {
                 [name]: 1
             });
         } else {
-            if (this.state.search) {
+            if (this.props.booksData.search) {
                 this.searchData(targetPage);
             } else {
                 this.findAllBooks(targetPage);
@@ -90,7 +93,8 @@ class BookList extends Component {
     };
 
     firstPage = () => {
-        const {currentPage, search} = this.state;
+        const {currentPage} = this.props.booksData.books;
+        const {search} = this.props.booksData;
         let firstPage = 1;
 
         if (currentPage > firstPage) {
@@ -103,20 +107,22 @@ class BookList extends Component {
     };
 
     prevPage = () => {
-        const {currentPage, search} = this.state;
-        let prevPage = 1;
+        const {search} = this.props.booksData;
+        const {currentPage} = this.props.booksData.books;
 
-        if (currentPage > prevPage) {
+        if (currentPage > 1) {
             if (search) {
-                this.searchData(currentPage - prevPage);
+                this.searchData(currentPage - 1);
             } else {
-                this.findAllBooks(currentPage - prevPage);
+                this.findAllBooks(currentPage - 1);
             }
         }
     };
 
     lastPage = () => {
-        const {totalElements, booksPerPage, currentPage, search} = this.state;
+        const {booksPerPage, search} = this.props.booksData;
+        const {currentPage, totalElements} = this.props.booksData.books;
+
         let condition = Math.ceil(totalElements / booksPerPage);
 
         if (currentPage < condition) {
@@ -129,7 +135,8 @@ class BookList extends Component {
     };
 
     nextPage = () => {
-        const {totalElements, booksPerPage, currentPage, search} = this.state;
+        const {booksPerPage, search} = this.props.booksData;
+        const {currentPage, totalElements} = this.props.booksData.books;
 
         if (currentPage < Math.ceil(totalElements / booksPerPage)) {
             if (search) {
@@ -149,27 +156,41 @@ class BookList extends Component {
     };
 
     cancelSearch = () => {
-        this.setState({"search": ''});
-        this.findAllBooks(this.state.currentPage);
+        this.setState({"search": ""});
+        this.findAllBooks(this.props.booksData.books.currentPage);
     };
 
     searchData = (currentPage) => {
-        const {search, booksPerPage} = this.state;
+        const {booksPerPage, search} = this.props.booksData;
         currentPage -= 1;
 
-        axios.get(`http://localhost:8080/books/search/${search}?page=${currentPage}&size=${booksPerPage}`)
-            .then((response) => {
-                this.setState({
-                    books: response.data.content,
-                    totalPages: response.data.totalPages,
-                    totalElements: response.data.totalElements,
-                    currentPage: response.data.number + 1
-                });
-            });
+        this.props.searchBook(search, currentPage, booksPerPage);
+
+        // const {books} = this.props.booksData;
+
+        // if (books != null) {
+        //     this.setState({
+        //         books: books.content,
+        //         totalPages: books.totalPages,
+        //         totalElements: books.totalElements,
+        //         currentPage: books.number
+        //     });
+        // }
+
+        // axios.get(`http://localhost:8080/books/search/${search}?page=${currentPage}&size=${booksPerPage}`)
+        //     .then((response) => {
+        //         this.setState({
+        //             books: response.data.content,
+        //             totalPages: response.data.totalPages,
+        //             totalElements: response.data.totalElements,
+        //             currentPage: response.data.number + 1
+        //         });
+        //     });
     };
 
     render() {
-        const {books, currentPage, totalPages, search, sortDir} = this.state;
+        const {search, sortDir} = this.props.booksData;
+        const {content, currentPage, totalPages} = this.props.booksData.books;
 
         return (
             <div>
@@ -214,11 +235,11 @@ class BookList extends Component {
                             </tr>
                             </thead>
                             <tbody>
-                            {books.length === 0 ?
+                            {content.length === 0 ?
                                 <tr align="center">
                                     <td colSpan="6">Books available</td>
                                 </tr> :
-                                books.map((book) => (
+                                content.map((book) => (
                                     <tr key={book.id}>
                                         <td>
                                             <Image src={book.coverPhotoURL} roundedCircle width="25" height="25"/>
@@ -250,7 +271,7 @@ class BookList extends Component {
                             </tbody>
                         </Table>
                     </Card.Body>
-                    {books.length > 0 ?
+                    {content.length > 0 ?
                         <Card.Footer>
                             <div style={{"float": "left"}}>
                                 Showing Page {currentPage} of {totalPages}
@@ -293,18 +314,17 @@ class BookList extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        bookObject: state.book,
-        bookArray: state.book
-    }
+BookList.propTypes = {
+    fetchBooks: PropTypes.func.isRequired,
+    deleteBook: PropTypes.func.isRequired,
+    searchBook: PropTypes.func.isRequired,
+    bookObject: PropTypes.object.isRequired,
+    booksData: PropTypes.object.isRequired,
 };
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        deleteBook: (bookId) => dispatch(deleteBook(bookId)),
-        fetchBooks: (currentPage, booksPerPage, sortDir) => dispatch(fetchBooks(currentPage, booksPerPage, sortDir)),
-    }
-};
+const mapStateToProps = (state) => ({
+    bookObject: state.book,
+    booksData: state.book
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(BookList);
+export default connect(mapStateToProps, {fetchBooks, deleteBook, searchBook})(BookList);

@@ -1,42 +1,51 @@
-import {
-    SAVE_BOOK_REQUEST,
-    FETCH_BOOK_REQUEST,
-    FETCH_BOOKS_REQUEST,
-    UPDATE_BOOK_REQUEST,
-    DELETE_BOOK_REQUEST,
-    BOOK_SUCCESS,
-    BOOKS_SUCCESS,
-    BOOK_FAILURE
-} from "../actions/book-types";
+import {BOOK_SUCCESS, BOOKS_SUCCESS, BOOK_FAILURE, LANGUAGES_SUCCESS, GENRES_SUCCESS} from "../actions/book-types";
 
 const initialState = {
-    books: {},
+    books: {
+        content: [],
+        totalPages: "",
+        totalElements: "",
+        currentPage: 1
+    },
+    search: "",
+    booksPerPage: 5,
+    sortDir: "asc",
     book: "",
-    error: ""
+    error: "",
+    languages: [],
+    genres: []
 };
 
 const reducer = (state = initialState, action) => {
     switch (action.type) {
-        case SAVE_BOOK_REQUEST || UPDATE_BOOK_REQUEST || FETCH_BOOK_REQUEST || DELETE_BOOK_REQUEST || FETCH_BOOKS_REQUEST:
-            return {
-                ...state
-            };
         case BOOKS_SUCCESS:
             return {
-                books: action.payload,
-                book: "",
-                error: ""
+                ...state,
+                books: {
+                    content: action.payload.content,
+                    totalPages: action.payload.totalPages,
+                    totalElements: action.payload.totalElements,
+                    currentPage: action.payload.number + 1,
+                }
             };
         case BOOK_SUCCESS:
             return {
-                books: {},
+                ...state,
                 book: action.payload,
-                error: ""
+            };
+        case LANGUAGES_SUCCESS:
+            return {
+                ...state,
+                languages: action.payload
+            };
+        case GENRES_SUCCESS:
+            return {
+                ...state,
+                genres: action.payload
             };
         case BOOK_FAILURE:
             return {
-                books: [],
-                book: "",
+                ...state,
                 error: action.payload
             };
         default:
