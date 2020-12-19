@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {Card, Table, Image, ButtonGroup, Button, InputGroup, FormControl} from 'react-bootstrap';
-import axios from "axios";
 import {
     faEdit,
     faFastBackward,
@@ -21,58 +20,64 @@ import "../style.css";
 
 class BookList extends Component {
     state = {
-        // search: "",
-        // booksPerPage: 5,
-        // sortDir: "asc"
+        search: "",
+        booksPerPage: 5,
+        sortDir: "asc",
+        show: false
     };
 
     componentDidMount() {
-        // this.findAllBooks(this.state.currentPage);
         this.findAllBooks(this.props.booksData.books.currentPage);
     }
 
     findAllBooks = (currentPage) => {
         currentPage -= 1;
-        const {booksPerPage, sortDir} = this.props.booksData;
-        // const {books} = this.props.booksData;
+        const {booksPerPage, sortDir} = this.state;
 
         this.props.fetchBooks(currentPage, booksPerPage, sortDir);
-
-        // if (books != null) {
-        //     this.setState({
-        //         books: books.content,
-        //         totalPages: books.totalPages,
-        //         totalElements: books.totalElements,
-        //         currentPage: books.number
-        //     });
-        // }
     };
 
     deleteBook = (bookId) => {
         this.props.deleteBook(bookId);
 
+        const {currentPage} = this.props.booksData.books;
+
         setTimeout(() => {
             if (this.props.bookObject != null) {
-                this.setState({show: true});
-                setTimeout(() => this.setState({show: false}), 3000);
-                this.findAllBooks(this.props.booksData.books.currentPage);
+                this.setState({
+                    show: true
+                });
+                setTimeout(() =>
+                    this.setState({
+                        show: false
+                    }), 3000);
+                this.findAllBooks(currentPage);
             } else {
-                this.setState({show: false});
+                this.setState({
+                    show: false
+                });
             }
         });
     };
 
     sortData = () => {
-        const {sortDir} = this.props.booksData;
+        const {sortDir} = this.state;
         const {currentPage} = this.props.booksData.books;
 
         setTimeout(() => {
-            sortDir === "asc" ? this.setState({sortDir: "desc"}) : this.setState({sortDir: "asc"});
+            sortDir === "asc" ?
+                this.setState({
+                    sortDir: "desc"
+                }) :
+                this.setState({
+                    sortDir: "asc"
+                });
             this.findAllBooks(currentPage);
         }, 500);
     };
 
     changePage = (event) => {
+        const {search} = this.state;
         const {name, value} = event.target;
         let targetPage = parseInt(value);
 
@@ -81,7 +86,7 @@ class BookList extends Component {
                 [name]: 1
             });
         } else {
-            if (this.props.booksData.search) {
+            if (search) {
                 this.searchData(targetPage);
             } else {
                 this.findAllBooks(targetPage);
@@ -93,8 +98,8 @@ class BookList extends Component {
     };
 
     firstPage = () => {
+        const {search} = this.state;
         const {currentPage} = this.props.booksData.books;
-        const {search} = this.props.booksData;
         let firstPage = 1;
 
         if (currentPage > firstPage) {
@@ -107,7 +112,7 @@ class BookList extends Component {
     };
 
     prevPage = () => {
-        const {search} = this.props.booksData;
+        const {search} = this.state;
         const {currentPage} = this.props.booksData.books;
 
         if (currentPage > 1) {
@@ -120,7 +125,7 @@ class BookList extends Component {
     };
 
     lastPage = () => {
-        const {booksPerPage, search} = this.props.booksData;
+        const {booksPerPage, search} = this.state;
         const {currentPage, totalElements} = this.props.booksData.books;
 
         let condition = Math.ceil(totalElements / booksPerPage);
@@ -135,7 +140,7 @@ class BookList extends Component {
     };
 
     nextPage = () => {
-        const {booksPerPage, search} = this.props.booksData;
+        const {booksPerPage, search} = this.state;
         const {currentPage, totalElements} = this.props.booksData.books;
 
         if (currentPage < Math.ceil(totalElements / booksPerPage)) {
@@ -156,46 +161,30 @@ class BookList extends Component {
     };
 
     cancelSearch = () => {
-        this.setState({"search": ""});
-        this.findAllBooks(this.props.booksData.books.currentPage);
+        const {currentPage} = this.props.booksData.books;
+
+        this.setState({
+            search: ""
+        });
+
+        this.findAllBooks(currentPage);
     };
 
     searchData = (currentPage) => {
-        const {booksPerPage, search} = this.props.booksData;
+        const {booksPerPage, search} = this.state;
         currentPage -= 1;
 
         this.props.searchBook(search, currentPage, booksPerPage);
-
-        // const {books} = this.props.booksData;
-
-        // if (books != null) {
-        //     this.setState({
-        //         books: books.content,
-        //         totalPages: books.totalPages,
-        //         totalElements: books.totalElements,
-        //         currentPage: books.number
-        //     });
-        // }
-
-        // axios.get(`http://localhost:8080/books/search/${search}?page=${currentPage}&size=${booksPerPage}`)
-        //     .then((response) => {
-        //         this.setState({
-        //             books: response.data.content,
-        //             totalPages: response.data.totalPages,
-        //             totalElements: response.data.totalElements,
-        //             currentPage: response.data.number + 1
-        //         });
-        //     });
     };
 
     render() {
-        const {search, sortDir} = this.props.booksData;
+        const {search, sortDir, show} = this.state;
         const {content, currentPage, totalPages} = this.props.booksData.books;
 
         return (
             <div>
-                <div style={{"display": this.state.show ? "block" : "none"}}>
-                    <MyToast show={this.state.show} message={"Book deleted successfully"} type={"danger"}/>
+                <div style={{"display": show ? "block" : "none"}}>
+                    <MyToast show={show} message={"Book deleted successfully"} type={"danger"}/>
                 </div>
                 <Card className="border border-dark bg-light">
                     <Card.Header>

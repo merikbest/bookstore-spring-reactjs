@@ -2,27 +2,28 @@ import React, {Component} from 'react';
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
-import {saveBook} from "../../actions/book-actions";
+import {updateBook} from "../../actions/book-actions";
 import BookInputForm from "../parts/book-input-form";
 
-class BookAdd extends Component {
+class BookEdit extends Component {
     state = {
         show: false,
         method: "",
     };
 
-    addBook = (book) => {
-        this.props.saveBook(book);
+    editBook = (book) => {
+        this.props.updateBook(book);
 
-        if (this.props.savedBookObject.book != null) {
+        if (this.props.updatedBookObject.book != null) {
             this.setState({
                 show: true
             });
             setTimeout(() =>
                 this.setState({
                     show: false,
-                    method: "post"
+                    method: "put"
                 }), 3000);
+            setTimeout(() => this.bookList(), 3000);
         } else {
             this.setState({
                 show: false
@@ -35,20 +36,21 @@ class BookAdd extends Component {
 
         return (
             <BookInputForm
-                addBook={this.addBook}
+                bookId={+this.props.match.params.id}
+                editBook={this.editBook}
                 show={show}
                 method={method}/>
         );
     }
 }
 
-BookAdd.propTypes = {
-    saveBook: PropTypes.func.isRequired,
-    savedBookObject: PropTypes.object.isRequired,
+BookEdit.propTypes = {
+    updateBook: PropTypes.func.isRequired,
+    updatedBookObject: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-    savedBookObject: state.book,
+    updatedBookObject: state.book,
 });
 
-export default connect(mapStateToProps, {saveBook})(BookAdd);
+export default connect(mapStateToProps, {updateBook})(BookEdit);

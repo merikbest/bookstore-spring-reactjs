@@ -8,6 +8,7 @@ import Footer from "./components/parts/footer";
 import BookAdd from "./components/book/book-add";
 import BookList from "./components/book/book-list";
 import UserList from "./components/user/user-list";
+import BookEdit from "./components/book/book-edit";
 
 function App() {
     return (
@@ -19,7 +20,7 @@ function App() {
                         <Switch>
                             <Route path="/" exact component={Main}/>
                             <Route path="/add" exact component={BookAdd}/>
-                            <Route path="/edit/:id" exact component={BookAdd}/>
+                            <Route path="/edit/:id" exact component={BookEdit}/>
                             <Route path="/list" exact component={BookList}/>
                             <Route path="/users" exact component={UserList}/>
                         </Switch>

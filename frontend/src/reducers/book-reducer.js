@@ -7,9 +7,6 @@ const initialState = {
         totalElements: "",
         currentPage: 1
     },
-    search: "",
-    booksPerPage: 5,
-    sortDir: "asc",
     book: "",
     error: "",
     languages: [],
